@@ -1,23 +1,23 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import { Contract } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
 describe("Token", function () {
-  let Token;
-  let tokenContract;
-  let creator;
-  let addr1;
+  let tokenContract: Contract;
+  let creator : SignerWithAddress;
+  let addr1: SignerWithAddress;
 
   beforeEach(async function () {
-    Token = await ethers.getContractFactory("Token");
-    [creator, addr1] = await ethers.getSigners();
+    const Token = await ethers.getContractFactory("Token");
     tokenContract = await Token.deploy("Bigblackcoin", "BBC", 18);
     await tokenContract.deployed();
+    [creator, addr1] = await ethers.getSigners();
     await tokenContract.mint(creator.address, ethers.utils.parseUnits("2", 18));
   });
 
   it("Creation: should deploy the contract", async function () { 
-    await tokenContract;
-    expect((await tokenContract.address));
+    expect((tokenContract.address));
   });
 
   it("Creation: should check if the contract data is correct", async function () {
@@ -28,10 +28,10 @@ describe("Token", function () {
   });
   
   it("Transactions: should transfer 1 BBC token to addr1", async function () {
-    initialBalance = await tokenContract.balanceOf(addr1.address);
+    const initialBalance = await tokenContract.balanceOf(addr1.address);
     await tokenContract.transfer(addr1.address, ethers.utils.parseUnits("1", 18));
 
-    finalBalance = await tokenContract.balanceOf(addr1.address);
+    const finalBalance = await tokenContract.balanceOf(addr1.address);
     expect((finalBalance - initialBalance).toString()).to.equal(
       ethers.utils.parseUnits("1", 18).toString());
   });
@@ -63,7 +63,7 @@ describe("Token", function () {
 
   it("Minting: should mint 4 BBC tokens", async function () {
     await tokenContract.mint(creator.address, ethers.utils.parseUnits("4", 18));
-    totalSupply = (await tokenContract.tokenTotalSupply()).toString();
+    const totalSupply = (await tokenContract.tokenTotalSupply()).toString();
     expect(totalSupply).to.equal(ethers.utils.parseUnits("6", 18).toString());
   });
 
@@ -73,7 +73,7 @@ describe("Token", function () {
 
   it("Burning: should burn 1 BBC token", async function () {
     await tokenContract.burn(creator.address, ethers.utils.parseUnits("1", 18));
-    totalSupply = (await tokenContract.tokenTotalSupply()).toString();
+    const totalSupply = (await tokenContract.tokenTotalSupply()).toString();
     expect(totalSupply).to.equal(ethers.utils.parseUnits("1", 18));
   });
 
