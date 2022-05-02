@@ -9,7 +9,7 @@ contract Token {
     uint8 public tokenDecimals;
     string public tokenName;
     string public tokenSymbol;
-    address public creator;
+    address public immutable creator;
 
     mapping(address => uint256) public balances;
     mapping(address => mapping(address => uint256)) public allowed;
@@ -21,10 +21,10 @@ contract Token {
         creator = msg.sender;
     }
 
-    event Transfer(address _from, address _to, uint256 _value);
-    event Approval(address _creator, address _spender, uint256 _value);
-    event Mint(address _creator, uint256 _value);
-    event Burn(address _creator, uint256 _value);
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+    event Approval(address indexed _creator, address indexed _spender, uint256 _value);
+    event Mint(address indexed _creator, uint256 _value);
+    event Burn(address indexed _creator, uint256 _value);
 
     modifier creatorOnly {
         _creatorOnly();
