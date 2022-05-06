@@ -54,6 +54,10 @@ describe("Token", function () {
     await expect(tokenContract.transferFrom(addr1.address, creator.address, ethers.utils.parseUnits("420", 18))).to.be.revertedWith("Insufficient balance");
   });
 
+  it("Allowance: should FAIL to transfer 1 BBC token from addr1 to creator (insufficient allowance)", async function () {
+    await expect(tokenContract.transferFrom(creator.address, addr1.address, ethers.utils.parseUnits("1", 18))).to.be.revertedWith("Insufficient allowance");
+  });
+
   it("Approval: should approve 1 BBC token", async function () {
     await tokenContract.connect(addr1).approve(
       creator.address, ethers.utils.parseUnits("1", 18));
