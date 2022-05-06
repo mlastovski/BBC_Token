@@ -58,6 +58,11 @@ describe("Token", function () {
     await expect(tokenContract.transferFrom(creator.address, addr1.address, ethers.utils.parseUnits("1", 18))).to.be.revertedWith("Insufficient allowance");
   });
 
+  // TODO uint256.max check
+  // it("Allowance: UINT256.max check", async function () {
+    
+  // });
+
   it("Approval: should approve 1 BBC token", async function () {
     await tokenContract.connect(addr1).approve(
       creator.address, ethers.utils.parseUnits("1", 18));
