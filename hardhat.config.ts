@@ -28,7 +28,7 @@ const config: HardhatUserConfig = {
     rinkeby: {
       url: process.env.INFURA_URL || "",
       accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+        process.env.MNEMONIC !== undefined ? [process.env.MNEMONIC] : [],
     },
   },
   gasReporter: {

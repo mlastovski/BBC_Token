@@ -37,7 +37,7 @@ describe("Token", function () {
   });
 
   it("Transactions: should FAIL to transfer 420 BBC tokens to addr1 (insufficient balance)", async function () {
-    await tokenContract.transfer(addr1.address, ethers.utils.parseUnits("420", 18));
+    await expect(tokenContract.transfer(addr1.address, ethers.utils.parseUnits("420", 18))).to.be.revertedWith("Insufficient balance");
   });
 
   it("Transactions: should transfer 1 BBC token from addr1 to owner", async function () {
@@ -51,7 +51,7 @@ describe("Token", function () {
   });
 
   it("Transactions: should FAIL to transfer 420 BBC tokens from addr1 to creator (insufficient balance)", async function () {
-    await tokenContract.transferFrom(addr1.address, creator.address, ethers.utils.parseUnits("420", 18));
+    await expect(tokenContract.transferFrom(addr1.address, creator.address, ethers.utils.parseUnits("420", 18))).to.be.revertedWith("Insufficient balance");
   });
 
   it("Approval: should approve 1 BBC token", async function () {
@@ -68,7 +68,7 @@ describe("Token", function () {
   });
 
   it("Minting: should FAIL to mint 4 BBC tokens from non-owner address", async function () {
-    await tokenContract.connect(addr1).mint(creator.address, ethers.utils.parseUnits("4", 18));
+    await expect(tokenContract.connect(addr1).mint(creator.address, ethers.utils.parseUnits("4", 18))).to.be.revertedWith("This address is not a creator");
   });
 
   it("Burning: should burn 1 BBC token", async function () {
@@ -79,10 +79,10 @@ describe("Token", function () {
 
   it("Burning: should FAIL to burn 1 BBC token from non-owner address", async function () {
     await tokenContract.mint(creator.address, ethers.utils.parseUnits("1", 18));
-    await tokenContract.connect(addr1).burn(creator.address, ethers.utils.parseUnits("1", 18));
+    await expect(tokenContract.connect(addr1).burn(creator.address, ethers.utils.parseUnits("1", 18))).to.be.revertedWith("This address is not a creator");
   });
 
   it("Burning: should FAIL burning 100 BBC token (insufficient balance)", async function () {
-    await tokenContract.burn(creator.address, ethers.utils.parseUnits("100", 18));
+    await expect(tokenContract.burn(creator.address, ethers.utils.parseUnits("100", 18))).to.be.revertedWith("Insufficient balance");
   });
 });

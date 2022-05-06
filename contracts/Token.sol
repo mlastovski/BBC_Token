@@ -4,9 +4,8 @@ pragma solidity ^0.8.11;
 import "hardhat/console.sol";
 
 contract Token {
-    uint256 constant private MAX_UINT256 = 2**256 - 1;
     uint256 public tokenTotalSupply;
-    uint8 public tokenDecimals;
+    uint256 public tokenDecimals;
     string public tokenName;
     string public tokenSymbol;
     address public immutable creator;
@@ -67,7 +66,7 @@ contract Token {
         require(_value <= balances[_from], "Insufficient balance");
         uint256 _allowed = allowance(_from, msg.sender);
         require(_value <= _allowed, "Insufficient allowance");
-        if (_allowed < MAX_UINT256) {
+        if (_allowed < type(uint256).max) {
             allowed[_from][msg.sender] -= _value;
         }
         balances[_to] += _value;
@@ -77,7 +76,7 @@ contract Token {
     }
 
     function burn(address _from, uint256 amount) external creatorOnly returns (bool success) {
-        require(balances[_from] > amount, "Insufficient balance");
+        require(balances[_from] >= amount, "Insufficient balance");
         balances[_from] -= amount;
         tokenTotalSupply -= amount;
         emit Burn(_from, amount);
