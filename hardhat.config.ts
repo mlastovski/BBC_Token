@@ -26,10 +26,16 @@ const config: HardhatUserConfig = {
   solidity: "0.8.11",
   networks: {
     rinkeby: {
-      url: process.env.INFURA_URL || "",
+      url: process.env.ALCHEMY_URL || "",
       accounts:
         process.env.MNEMONIC !== undefined ? [process.env.MNEMONIC] : [],
     },
+    hardhat: {
+      forking: {
+        enabled: true,
+        url: process.env.ALCHEMY_URL as string,
+      }
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
@@ -38,6 +44,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
+  
 };
 
 export default config;

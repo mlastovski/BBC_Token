@@ -1,12 +1,12 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const Token = await ethers.getContractFactory("Token");
-  const token = await Token.deploy("Bigblackcoin", "BBC", 18);
+  const BBC = await ethers.getContractFactory("BBC");
+  const bbc = await BBC.deploy("Bigblackcoin", "BBC", 18);
 
-  await token.deployed();
+  await bbc.deployed();
 
-  console.log("Token deployed to:", token.address);
+  console.log("BBC deployed to:", bbc.address);
 }
 
 main().catch((error) => {
