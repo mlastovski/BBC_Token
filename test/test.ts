@@ -49,11 +49,11 @@ describe("Farming", function () {
     await weth.deployed();
   });
 
-  afterEach(async function () {
-    lpToken = await ethers.getContractAt("IERC20", "0x9c8F0f36CC410361DC7b65d196C9DA289f46560E");
-    await lpToken.burn(creator.address);
-    // await lpToken._burn(creator.address, lpToken.totalSupply());
-  });
+  // afterEach(async function () {
+  //   lpToken = await ethers.getContractAt("IERC20", "0x9c8F0f36CC410361DC7b65d196C9DA289f46560E");
+  //   await lpToken.burn(creator.address);
+  //   // await lpToken._burn(creator.address, lpToken.totalSupply());
+  // });
 
   it("WETH: Should deposit WETH", async function () {
     await weth.deposit({value: parseEther("0.1")});

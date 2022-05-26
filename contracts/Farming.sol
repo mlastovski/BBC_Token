@@ -59,9 +59,10 @@ contract Farming {
         return(_stakes[msg.sender].amount, _stakes[msg.sender].timestamp, _getRewardsAmount(user));
     }
 
-    function _getRewardsAmount(address account) public view returns (uint256 amount) {
+    function _getRewardsAmount(address account) internal view returns (uint256 rewards) {
         require(_stakes[account].timestamp != 0, "No rewards to claim");
-        uint256 timeDifference = block.timestamp - _stakes[account].timestamp;
-        return((timeDifference * 1e18 / 52 weeks) * 20 / 100);
+        uint256 lockedDays = block.timestamp - _stakes[account].timestamp;
+        uint256 amountStaked = _stakes[account].amount;
+        return((amountStaked * 20 * lockedDays) / (365 days * 100));
     }
 }
