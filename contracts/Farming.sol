@@ -13,6 +13,7 @@ contract Farming {
     struct Stake {
         uint256 amount;
         uint256 timestamp;
+        uint256 claimed;
     }
 
     mapping(address => Stake) internal _stakes;
@@ -27,10 +28,11 @@ contract Farming {
         lpToken.transferFrom(msg.sender, address(this), amount);
 
         if(_stakes[msg.sender].amount > 0) {
+            claim();
             _stakes[msg.sender].amount += amount;
             _stakes[msg.sender].timestamp = block.timestamp;
         } else {
-            _stakes[msg.sender] = Stake({amount: amount, timestamp: block.timestamp});
+            _stakes[msg.sender] = Stake({amount: amount, timestamp: block.timestamp, claimed: 0});
         }
 
         emit Staked(msg.sender, amount);
@@ -40,8 +42,9 @@ contract Farming {
         require(_stakes[msg.sender].timestamp != 0, "No rewards to claim");
         uint256 rewardInBBC = _getRewardsAmount(msg.sender);
         require(_stakes[msg.sender].amount > 0 && rewardInBBC > 0, "No bbc to claim");
+        _stakes[msg.sender].claimed += rewardInBBC;
         bbc.mint(msg.sender, rewardInBBC);
-        _stakes[msg.sender].timestamp = 0;
+        _stakes[msg.sender].timestamp = block.timestamp;
 
         emit Claimed(msg.sender, rewardInBBC);
     }
@@ -55,11 +58,11 @@ contract Farming {
         emit Withdrawal(msg.sender, amount);
     }
 
-    function getUserInfo(address user) public view returns (uint256 deposit, uint256 timestamp, uint256 rewards) {
-        return(_stakes[msg.sender].amount, _stakes[msg.sender].timestamp, _getRewardsAmount(user));
+    function getUserInfo(address user) public view returns (uint256 deposit, uint256 timestamp, uint256 rewards, uint256 claimedRewards) {
+        return(_stakes[msg.sender].amount, _stakes[msg.sender].timestamp, _getRewardsAmount(user), _stakes[msg.sender].claimed);
     }
 
-    function _getRewardsAmount(address account) internal view returns (uint256 rewards) {
+    function _getRewardsAmount(address account) public view returns (uint256 rewards) {
         require(_stakes[account].timestamp != 0, "No rewards to claim");
         uint256 lockedDays = block.timestamp - _stakes[account].timestamp;
         uint256 amountStaked = _stakes[account].amount;

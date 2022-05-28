@@ -77,6 +77,14 @@ describe("Farming", function () {
     await lpToken.approve(farming.address, parseEther("1"));
     await farming.stake(parseEther("1"));
     expect(await lpToken.balanceOf(farming.address)).to.equal(parseEther("1"));
+
+
+    const days = 24 * 60 * 60;
+    await ethers.provider.send('evm_increaseTime', [365 * days]);
+    await ethers.provider.send('evm_mine', []);
+    const rewards = await farming._getRewardsAmount(creator.address);
+    console.log(rewards);
+    expect(rewards).to.be.equal("200000000000000000");
   });
 
   it("Farming: Should get user info", async function () {
@@ -102,6 +110,7 @@ describe("Farming", function () {
   });
 
   it("Farming: Should add to existent stake", async function () {
+    await setAdminRole(farming.address);
     await sendLp(creator.address, parseEther("1"));
     await lpToken.approve(farming.address, parseEther("1"));
     await farming.stake(parseEther("1"));
@@ -129,7 +138,8 @@ describe("Farming", function () {
     await sendLp(creator.address, parseEther("2"));
     await lpToken.approve(farming.address, parseEther("2"));
     await farming.stake(parseEther("2"));
-    await farming.claim();
+    await ethers.provider.send('evm_mine', [0]);
+    // await farming.claim();
     await expect(farming.claim()).to.be.revertedWith("No bbc to claim");
   });
 
@@ -162,6 +172,7 @@ describe("Farming", function () {
     await setAdminRole(farming.address);
     await sendLp(creator.address, parseEther("1"));
     await lpToken.approve(farming.address, parseEther("1"));
+    await ethers.provider.send('evm_mine', [0]);
     await expect(farming._getRewardsAmount(creator.address)).to.be.revertedWith("No rewards to claim");
   });
 });
