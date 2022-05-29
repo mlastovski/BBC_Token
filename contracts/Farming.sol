@@ -24,7 +24,6 @@ contract Farming {
 
     function stake(uint256 amount) public {
         require(amount > 0, "Zero stake");
-        require(lpToken.allowance(msg.sender, address(this)) >= amount, "Insufficient allowance");
         lpToken.transferFrom(msg.sender, address(this), amount);
 
         if(_stakes[msg.sender].amount > 0) {
@@ -59,7 +58,7 @@ contract Farming {
     }
 
     function getUserInfo(address user) public view returns (uint256 deposit, uint256 timestamp, uint256 rewards, uint256 claimedRewards) {
-        return(_stakes[msg.sender].amount, _stakes[msg.sender].timestamp, _getRewardsAmount(user), _stakes[msg.sender].claimed);
+        return(_stakes[user].amount, _stakes[user].timestamp, _getRewardsAmount(user), _stakes[user].claimed);
     }
 
     function _getRewardsAmount(address account) public view returns (uint256 rewards) {

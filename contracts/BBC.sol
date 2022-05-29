@@ -73,18 +73,20 @@ contract BBC is AccessControl {
         return allowed[_owner][_spender];
     }
 
-    function mint(address _address, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) returns (bool success) {
+    function mint(address _to, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) returns (bool success) {
         tokenTotalSupply += _amount;
-        balances[_address] += _amount;
-        emit Mint(_address, _amount);
+        balances[_to] += _amount;
+        emit Mint(_to, _amount);
+        emit Transfer(address(0), _to, _amount);
         return true;
     }
 
-    function burn(address _from, uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) returns (bool success) {
-        require(balances[_from] >= amount, "Insufficient balance");
-        balances[_from] -= amount;
-        tokenTotalSupply -= amount;
-        emit Burn(_from, amount);
+    function burn(address _from, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) returns (bool success) {
+        require(balances[_from] >= _amount, "Insufficient balance");
+        balances[_from] -= _amount;
+        tokenTotalSupply -= _amount;
+        emit Burn(_from, _amount);
+        emit Transfer(_from, address(0), _amount);
         return true;
     }
 }

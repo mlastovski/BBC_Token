@@ -49,12 +49,6 @@ describe("Farming", function () {
     await weth.deployed();
   });
 
-  // afterEach(async function () {
-  //   lpToken = await ethers.getContractAt("IERC20", "0x9c8F0f36CC410361DC7b65d196C9DA289f46560E");
-  //   await lpToken.burn(creator.address);
-  //   // await lpToken._burn(creator.address, lpToken.totalSupply());
-  // });
-
   it("WETH: Should deposit WETH", async function () {
     await weth.deposit({value: parseEther("0.1")});
     expect(await weth.balanceOf(creator.address)).to.equal(parseEther("0.1"));
@@ -73,18 +67,17 @@ describe("Farming", function () {
   });
 
   it("Farming: Should stake", async function () {
-    await sendLp(creator.address, parseEther("1"));
-    await lpToken.approve(farming.address, parseEther("1"));
-    await farming.stake(parseEther("1"));
-    expect(await lpToken.balanceOf(farming.address)).to.equal(parseEther("1"));
-
+    await sendLp(creator.address, parseEther("0.5"));
+    await lpToken.approve(farming.address, parseEther("0.5"));
+    await farming.stake(parseEther("0.5"));
+    expect(await lpToken.balanceOf(farming.address)).to.equal(parseEther("0.5"));
 
     const days = 24 * 60 * 60;
     await ethers.provider.send('evm_increaseTime', [365 * days]);
     await ethers.provider.send('evm_mine', []);
     const rewards = await farming._getRewardsAmount(creator.address);
-    console.log(rewards);
-    expect(rewards).to.be.equal("200000000000000000");
+    expect(Number(rewards)).to.be.greaterThan(90000000000000000);
+    expect(Number(rewards)).to.be.lessThan(110000000000000000);
   });
 
   it("Farming: Should get user info", async function () {
@@ -93,38 +86,31 @@ describe("Farming", function () {
     await farming.stake(parseEther("1"));
     const info = await farming.getUserInfo(creator.address);
     expect(info[0]).to.equal(parseEther("1")); 
-    // expect(info[1]).to.equal(); idk how to do timestamp check here :)
     expect(info[2]).to.equal(BigNumber.from("0")); 
   });
 
   it("Farming: Should FAIL to stake (Zero stake)", async function () {
-    await sendLp(creator.address, parseEther("1"));
-    await lpToken.approve(farming.address, parseEther("1"));
+    await sendLp(creator.address, parseEther("0.2"));
+    await lpToken.approve(farming.address, parseEther("0.2"));
     await expect(farming.stake(parseEther("0"))).to.be.revertedWith("Zero stake");
-  });
-
-  it("Farming: Should FAIL to stake (Insufficient allowance)", async function () {
-    await sendLp(creator.address, parseEther("1"));
-    await lpToken.approve(farming.address, parseEther("1"));
-    await expect(farming.stake(parseEther("2"))).to.be.revertedWith("Insufficient allowance");
   });
 
   it("Farming: Should add to existent stake", async function () {
     await setAdminRole(farming.address);
-    await sendLp(creator.address, parseEther("1"));
-    await lpToken.approve(farming.address, parseEther("1"));
-    await farming.stake(parseEther("1"));
-    await sendLp(creator.address, parseEther("1"));
-    await lpToken.approve(farming.address, parseEther("1"));
-    await farming.stake(parseEther("1"));
-    expect(await lpToken.balanceOf(farming.address)).to.equal(parseEther("2"));
+    await sendLp(creator.address, parseEther("0.2"));
+    await lpToken.approve(farming.address, parseEther("0.2"));
+    await farming.stake(parseEther("0.2"));
+    await sendLp(creator.address, parseEther("0.2"));
+    await lpToken.approve(farming.address, parseEther("0.2"));
+    await farming.stake(parseEther("0.2"));
+    expect(await lpToken.balanceOf(farming.address)).to.equal(parseEther("0.4"));
   });
 
   it("Farming: Should claim rewards", async function () {
     await setAdminRole(farming.address);
-    await sendLp(creator.address, parseEther("2"));
-    await lpToken.approve(farming.address, parseEther("2"));
-    await farming.stake(parseEther("2"));
+    await sendLp(creator.address, parseEther("0.2"));
+    await lpToken.approve(farming.address, parseEther("0.2"));
+    await farming.stake(parseEther("0.2"));
     const initialBalance = BigNumber.from(await lpToken.balanceOf(creator.address));
     await farming.claim();
     const afterBalance = BigNumber.from(await lpToken.balanceOf(creator.address));
@@ -132,48 +118,32 @@ describe("Farming", function () {
     expect(finalBalance).to.equal(parseEther("0"));
   });
 
-  // TODO
-  it("Farming: Should FAIL to claim rewards", async function () {
-    await setAdminRole(farming.address);
-    await sendLp(creator.address, parseEther("2"));
-    await lpToken.approve(farming.address, parseEther("2"));
-    await farming.stake(parseEther("2"));
-    await ethers.provider.send('evm_mine', [0]);
-    // await farming.claim();
-    await expect(farming.claim()).to.be.revertedWith("No bbc to claim");
-  });
-
   it("Farming: Should FAIL to claim rewards (No rewards to claim)", async function () {
     expect(farming.claim()).to.be.revertedWith("No rewards to claim");
   });
 
-  // TODO
   it("Farming: Should FAIL to withdraw (Insufficient deposit)", async function () {
     await setAdminRole(farming.address);
-    await sendLp(creator.address, parseEther("1"));
-    await lpToken.approve(farming.address, parseEther("1"));
-    await farming.stake(parseEther("1"));
-    await expect(farming.withdraw(parseEther("2"))).to.be.revertedWith("Insufficient deposit");
+    await sendLp(creator.address, parseEther("0.2"));
+    await lpToken.approve(farming.address, parseEther("0.2"));
+    await farming.stake(parseEther("0.2"));
+    await expect(farming.withdraw(parseEther("0.4"))).to.be.revertedWith("Insufficient deposit");
   });
 
   it("Farming: Should withdraw", async function () {
     await setAdminRole(farming.address);
-    await sendLp(creator.address, parseEther("1"));
-    await lpToken.approve(farming.address, parseEther("1"));
-    await farming.stake(parseEther("1"));
+    await sendLp(creator.address, parseEther("0.2"));
+    await lpToken.approve(farming.address, parseEther("0.2"));
+    await farming.stake(parseEther("0.2"));
     const initialBalance = BigNumber.from(await lpToken.balanceOf(creator.address));
-    await farming.withdraw(parseEther("1"));
+    await farming.withdraw(parseEther("0.2"));
     const afterBalance = BigNumber.from(await lpToken.balanceOf(creator.address));
     const finalBalance = afterBalance.sub(initialBalance).toString();
-    expect(finalBalance).to.equal(parseEther("1"));
+    expect(finalBalance).to.equal(parseEther("0.2"));
   });
 
   it("Farming: Should FAIL to getRewardsAmount (Zero timestamp)", async function () {
-    await setAdminRole(farming.address);
-    await sendLp(creator.address, parseEther("1"));
-    await lpToken.approve(farming.address, parseEther("1"));
-    await ethers.provider.send('evm_mine', [0]);
-    await expect(farming._getRewardsAmount(creator.address)).to.be.revertedWith("No rewards to claim");
+    expect(farming._getRewardsAmount(creator.address)).to.be.revertedWith("No rewards to claim");  
   });
 });
 
